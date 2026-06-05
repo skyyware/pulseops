@@ -26,7 +26,7 @@ const sourceRevision = run("git", ["rev-parse", "--short", "HEAD"], { capture: t
 rmSync(deployDir, { force: true, recursive: true });
 mkdirSync(deployDir, { recursive: true });
 cpSync(distDir, deployDir, { recursive: true });
-writeFileSync(resolve(deployDir, ".source-revision"), `${sourceRevision}\n`, "utf8");
+writeFileSync(resolve(deployDir, "source-revision.txt"), `${sourceRevision}\n`, "utf8");
 
 run("git", ["init", "-b", "main"], { cwd: deployDir });
 run("git", ["add", "--all"], { cwd: deployDir });
