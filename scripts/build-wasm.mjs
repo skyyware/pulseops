@@ -78,6 +78,7 @@ mkdirSync(dirname(outputFile), { recursive: true });
 const compiler = resolveCompiler();
 run(compiler.command, [
   ...compiler.args,
+  "-std=c++17",
   sourceFile,
   "-O3",
   "-sMODULARIZE=1",
