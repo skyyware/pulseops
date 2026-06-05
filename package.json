@@ -12,7 +12,8 @@
     "build": "npm run build:wasm && npm run typecheck && vite build",
     "test:unit": "vitest run",
     "preview": "vite preview --host 0.0.0.0",
-    "check": "npm run build && npm run test:unit"
+    "check": "npm run build && npm run test:unit",
+    "deploy:stage": "npm run build && node scripts/deploy-stage.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.511.0",

@@ -4,5 +4,6 @@ src/wasm/health.js
 *.tsbuildinfo
 output/
 .playwright-cli/
+.deploy/
 .DS_Store
 npm-debug.log*

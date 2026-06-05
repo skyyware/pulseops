@@ -18,6 +18,12 @@ The stage server uses a bare repository with a `post-receive` hook. The hook che
 
 The source repository remains public on GitHub. The stage deployment receives the compiled `dist/` output, which keeps the server simple and avoids installing a frontend build toolchain on production.
 
+Deploy from a clean source checkout:
+
+```bash
+npm run deploy:stage
+```
+
 ## Verification
 
 After deploying, verify:
