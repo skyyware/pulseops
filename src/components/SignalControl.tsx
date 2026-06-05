@@ -1,4 +1,4 @@
-interface MetricInputProps {
+interface SignalControlProps {
   label: string;
   value: number;
   unit: string;
@@ -8,9 +8,9 @@ interface MetricInputProps {
   onChange: (value: number) => void;
 }
 
-export function MetricInput({ label, value, unit, min, max, step, onChange }: MetricInputProps) {
+export function SignalControl({ label, value, unit, min, max, step, onChange }: SignalControlProps) {
   return (
-    <label className="metric-control">
+    <label className="signal-control">
       <span>
         {label}
         <strong>

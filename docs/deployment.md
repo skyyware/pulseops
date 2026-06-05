@@ -1,4 +1,4 @@
-# Stage deployment
+# Stage Deployment
 
 PulseOps is deployed as a static build to `pulseops.stage.dev`.
 
@@ -24,10 +24,13 @@ Deploy from a clean source checkout:
 npm run deploy:stage
 ```
 
+The deployment script writes `source-revision.txt` into the public directory so the live build can be matched to the source commit.
+
 ## Verification
 
 After deploying, verify:
 
 ```bash
 curl -I https://pulseops.stage.dev
+curl https://pulseops.stage.dev/source-revision.txt
 ```

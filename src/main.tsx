@@ -1,71 +1,84 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Hero } from "./components/Hero";
-import { ServiceDetail } from "./components/ServiceDetail";
-import { ServiceFilter, ServiceList } from "./components/ServiceList";
-import { StatsGrid } from "./components/StatsGrid";
-import { services as seedServices } from "./data/services";
+import { AppShell } from "./components/AppShell";
+import { CommandMetrics } from "./components/CommandMetrics";
+import { RunbookPanel } from "./components/RunbookPanel";
+import { ServiceInspector } from "./components/ServiceInspector";
+import { WorkspaceBoard } from "./components/WorkspaceBoard";
 import { usePulseOpsWasm } from "./hooks/usePulseOpsWasm";
 import { getFleetScore, scoreService } from "./lib/scoring";
-import type { ServiceMetrics } from "./types";
+import { exportWorkspace, loadWorkspace, persistWorkspace, readWorkspaceFile, workspaceReducer } from "./lib/workspace";
+import type { ServiceMetrics, WorkspaceState } from "./types";
 import "./styles.css";
-
-const initialSelectedServiceId = "topology-sync";
 
 function App() {
   const { wasm, state: wasmState } = usePulseOpsWasm();
-  const [services, setServices] = useState<ServiceMetrics[]>(seedServices);
-  const [selectedId, setSelectedId] = useState(initialSelectedServiceId);
-  const [filter, setFilter] = useState<ServiceFilter>("all");
+  const [workspace, dispatch] = useReducer(workspaceReducer, undefined, loadWorkspace);
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    persistWorkspace(workspace);
+  }, [workspace]);
 
   const scoredServices = useMemo(
-    () => services.map((service) => scoreService(service, wasm)).sort((a, b) => b.risk - a.risk),
-    [services, wasm]
+    () => workspace.services.map((service) => scoreService(service, wasm)).sort((a, b) => b.risk - a.risk),
+    [workspace.services, wasm]
   );
-
-  const visibleServices = useMemo(
-    () => filter === "all" ? scoredServices : scoredServices.filter((service) => service.status === filter),
-    [filter, scoredServices]
-  );
-
-  const selectedService = scoredServices.find((service) => service.id === selectedId) ?? scoredServices[0];
-  const incidentCount = scoredServices.filter((service) => service.status === "incident").length;
-  const watchCount = scoredServices.filter((service) => service.status === "watch").length;
+  const selectedService = scoredServices.find((service) => service.id === workspace.selectedServiceId) ?? scoredServices[0];
+  const selectedIncident = workspace.incidents.find((incident) => incident.id === workspace.selectedIncidentId);
+  const activeServiceId = selectedIncident?.serviceId ?? selectedService.id;
+  const activeRunbook = workspace.runbooks.find((runbook) => runbook.serviceId === activeServiceId);
+  const relatedTimeline = workspace.timeline.filter((event) => !selectedIncident || event.incidentId === selectedIncident.id || event.serviceId === activeServiceId);
 
   function updateSelectedService(patch: Partial<ServiceMetrics>) {
-    setServices((current) =>
-      current.map((service) => service.id === selectedService.id ? { ...service, ...patch } : service)
-    );
+    dispatch({ type: "update-service", serviceId: selectedService.id, patch });
   }
 
-  function resetSample() {
-    setServices(seedServices);
-    setSelectedId(initialSelectedServiceId);
-    setFilter("all");
+  async function importFile(file: File) {
+    const imported = await readWorkspaceFile(file);
+    dispatch({ type: "import", workspace: imported });
   }
 
   return (
-    <main className="app-shell">
-      <Hero
-        fleetScore={getFleetScore(scoredServices)}
-        incidentCount={incidentCount}
-        watchCount={watchCount}
-        wasmState={wasmState}
-        onReset={resetSample}
-      />
-      <StatsGrid incidentCount={incidentCount} />
-
-      <section className="workspace">
-        <ServiceList
-          services={visibleServices}
-          selectedId={selectedService.id}
-          filter={filter}
-          onFilterChange={setFilter}
-          onSelect={setSelectedId}
+    <AppShell
+      workspace={workspace}
+      onViewChange={(view) => dispatch({ type: "set-view", view })}
+      onEnvironmentChange={(environment: WorkspaceState["environment"]) => dispatch({ type: "set-environment", environment })}
+      onSave={() => dispatch({ type: "save" })}
+      onReset={() => dispatch({ type: "reset" })}
+      onExport={() => exportWorkspace(workspace)}
+      onImport={importFile}
+    >
+      <CommandMetrics services={scoredServices} incidents={workspace.incidents} fleetScore={getFleetScore(scoredServices)} />
+      <section className="command-grid">
+        <WorkspaceBoard
+          view={workspace.view}
+          incidents={workspace.incidents}
+          services={scoredServices}
+          runbooks={workspace.runbooks}
+          timeline={workspace.timeline}
+          selectedIncidentId={workspace.selectedIncidentId}
+          selectedServiceId={workspace.selectedServiceId}
+          onIncidentSelect={(incidentId) => dispatch({ type: "select-incident", incidentId })}
+          onServiceSelect={(serviceId) => dispatch({ type: "select-service", serviceId })}
         />
-        <ServiceDetail service={selectedService} onChange={updateSelectedService} />
+        <ServiceInspector service={selectedService} modelReady={wasmState === "ready"} onChange={updateSelectedService} />
+        <RunbookPanel
+          incident={selectedIncident}
+          runbook={activeRunbook}
+          timeline={relatedTimeline}
+          note={note}
+          onNoteChange={setNote}
+          onNoteAdd={() => {
+            dispatch({ type: "add-note", text: note });
+            setNote("");
+          }}
+          onAcknowledge={() => selectedIncident && dispatch({ type: "set-incident-status", incidentId: selectedIncident.id, status: "acknowledged" })}
+          onResolve={() => selectedIncident && dispatch({ type: "set-incident-status", incidentId: selectedIncident.id, status: "resolved" })}
+          onStepToggle={(runbookId, stepId) => dispatch({ type: "toggle-runbook-step", runbookId, stepId })}
+        />
       </section>
-    </main>
+    </AppShell>
   );
 }
 

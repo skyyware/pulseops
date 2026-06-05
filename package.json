@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "type": "module",
-  "description": "A small C++/WebAssembly and React monitoring cockpit proof of concept.",
+  "description": "A local-first incident command workspace powered by React, TypeScript and a C++ WebAssembly health model.",
   "scripts": {
     "predev": "npm run build:wasm",
     "dev": "vite --host 0.0.0.0",
