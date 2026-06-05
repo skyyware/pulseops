@@ -1,0 +1,8 @@
+node_modules
+dist
+src/wasm/health.js
+*.tsbuildinfo
+output/
+.playwright-cli/
+.DS_Store
+npm-debug.log*
