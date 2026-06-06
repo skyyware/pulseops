@@ -1,6 +1,6 @@
 # Stage Deployment
 
-PulseOps is deployed as a static build to `pulseops.stage.dev`.
+PulseOps is deployed as a static frontend with a small registration API on `pulseops.stage.dev`.
 
 ## Local build
 
@@ -26,6 +26,16 @@ npm run deploy:stage
 
 The deployment script writes `source-revision.txt` into the public directory so the live build can be matched to the source commit.
 
+## Registration API
+
+The access-request API runs as a separate Node.js service behind Apache:
+
+```text
+/api/* -> 127.0.0.1:8106
+```
+
+The systemd unit lives in `deploy/systemd/pulseops-api.service`. SMTP settings are read from `/etc/skyyware/registration-mail.env` on the stage server. Do not commit SMTP credentials; only commit variable names and deployment instructions.
+
 ## Verification
 
 After deploying, verify:
@@ -33,4 +43,5 @@ After deploying, verify:
 ```bash
 curl -I https://pulseops.stage.dev
 curl https://pulseops.stage.dev/source-revision.txt
+curl https://pulseops.stage.dev/api/health
 ```

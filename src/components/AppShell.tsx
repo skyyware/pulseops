@@ -1,4 +1,4 @@
-import { Activity, ClipboardList, FileJson, Gauge, ListChecks, RotateCcw, ServerCog, Upload } from "lucide-react";
+import { Activity, ClipboardList, FileJson, Gauge, ListChecks, RotateCcw, ServerCog, Upload, UserPlus } from "lucide-react";
 import type { WorkspaceState, WorkspaceView } from "../types";
 import { formatTimestamp } from "../lib/time";
 
@@ -17,6 +17,7 @@ interface AppShellProps {
   onReset: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
+  onAccessRequest: () => void;
   children: React.ReactNode;
 }
 
@@ -28,6 +29,7 @@ export function AppShell({
   onReset,
   onExport,
   onImport,
+  onAccessRequest,
   children
 }: AppShellProps) {
   return (
@@ -64,9 +66,13 @@ export function AppShell({
         <header className="topbar">
           <div>
             <h1>Incident command workspace</h1>
-            <p>Local-first triage for service health, runbooks and operational decisions.</p>
+            <p>Operational triage for service health, runbooks and accountable decisions.</p>
           </div>
           <div className="topbar-actions">
+            <button type="button" className="primary-button" onClick={onAccessRequest}>
+              <UserPlus size={15} />
+              Request access
+            </button>
             <select value={workspace.environment} onChange={(event) => onEnvironmentChange(event.target.value as WorkspaceState["environment"])}>
               <option value="production">Production</option>
               <option value="staging">Staging</option>
@@ -93,7 +99,7 @@ export function AppShell({
           </div>
         </header>
         <div className="save-state">
-          Local workspace saved {workspace.lastSavedAt ? formatTimestamp(workspace.lastSavedAt) : "not yet"} · Git-based stage deploy ready
+          Workspace state saved {workspace.lastSavedAt ? formatTimestamp(workspace.lastSavedAt) : "not yet"} · Stage deployment active
         </div>
         {children}
       </section>
