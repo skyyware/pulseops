@@ -91,8 +91,8 @@ export const runbooks: Runbook[] = [
         done: false
       },
       {
-        id: "sample-slow-rules",
-        label: "Sample slow rules",
+        id: "latency-regression",
+        label: "Latency regression cohort",
         detail: "Open traces for top percentile execution time and compare with previous release.",
         done: false
       },

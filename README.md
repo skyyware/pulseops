@@ -14,14 +14,14 @@ PulseOps supports the core loop of incident response:
 4. Work through the relevant runbook and record decisions in the timeline.
 5. Save the local workspace or export/import it as JSON for handoff.
 
-The app is designed as a real operations surface, not as a marketing demo. Every visible control changes application state: navigation, service selection, signal editing, runbook step completion, incident acknowledgement/resolution, decision notes, reset, save, import and export.
+Every visible control changes application state: navigation, service selection, signal editing, runbook step completion, incident acknowledgement/resolution, decision notes, reset, save, import and export.
 
 ## Architecture
 
 ```text
 src/
   components/       Product UI: shell, board, inspector, runbook panel
-  data/             Seed workspace, services, incidents, runbooks, timeline
+  data/             Initial workspace, services, incidents, runbooks, timeline
   hooks/            WebAssembly loading
   lib/              Scoring, workspace reducer, persistence, time helpers
   wasm/             C++ health model and TypeScript declaration

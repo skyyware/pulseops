@@ -626,6 +626,18 @@ input[type="range"] {
   }
 }
 
+@media (min-width: 1181px) and (max-width: 1320px) {
+  .command-grid {
+    grid-template-columns: minmax(300px, 0.95fr) minmax(300px, 0.9fr) minmax(280px, 0.8fr);
+  }
+
+  .board-panel,
+  .service-inspector,
+  .runbook-panel > section {
+    padding: 15px;
+  }
+}
+
 @media (max-width: 760px) {
   .app-area {
     padding: 14px;
