@@ -1,4 +1,4 @@
-import { Activity, ClipboardList, FileJson, Gauge, ListChecks, RotateCcw, ServerCog, Upload, UserPlus } from "lucide-react";
+import { Activity, ClipboardList, FileJson, Gauge, ListChecks, RotateCcw, ServerCog, Upload } from "lucide-react";
 import type { WorkspaceState, WorkspaceView } from "../types";
 import { formatTimestamp } from "../lib/time";
 
@@ -17,7 +17,6 @@ interface AppShellProps {
   onReset: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
-  onAccessRequest: () => void;
   children: React.ReactNode;
 }
 
@@ -29,7 +28,6 @@ export function AppShell({
   onReset,
   onExport,
   onImport,
-  onAccessRequest,
   children
 }: AppShellProps) {
   return (
@@ -69,10 +67,6 @@ export function AppShell({
             <p>Operational triage for service health, runbooks and accountable decisions.</p>
           </div>
           <div className="topbar-actions">
-            <button type="button" className="primary-button" onClick={onAccessRequest}>
-              <UserPlus size={15} />
-              Request access
-            </button>
             <select value={workspace.environment} onChange={(event) => onEnvironmentChange(event.target.value as WorkspaceState["environment"])}>
               <option value="production">Production</option>
               <option value="staging">Staging</option>

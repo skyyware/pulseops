@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { AccessRequestDialog } from "./components/AccessRequestDialog";
 import { AppShell } from "./components/AppShell";
 import { CommandMetrics } from "./components/CommandMetrics";
 import { RunbookPanel } from "./components/RunbookPanel";
@@ -16,7 +15,6 @@ function App() {
   const { wasm, state: wasmState } = usePulseOpsWasm();
   const [workspace, dispatch] = useReducer(workspaceReducer, undefined, loadWorkspace);
   const [note, setNote] = useState("");
-  const [accessDialogOpen, setAccessDialogOpen] = useState(false);
 
   useEffect(() => {
     persistWorkspace(workspace);
@@ -50,7 +48,6 @@ function App() {
       onReset={() => dispatch({ type: "reset" })}
       onExport={() => exportWorkspace(workspace)}
       onImport={importFile}
-      onAccessRequest={() => setAccessDialogOpen(true)}
     >
       <CommandMetrics services={scoredServices} incidents={workspace.incidents} fleetScore={getFleetScore(scoredServices)} />
       <section className="command-grid">
@@ -81,7 +78,6 @@ function App() {
           onStepToggle={(runbookId, stepId) => dispatch({ type: "toggle-runbook-step", runbookId, stepId })}
         />
       </section>
-      <AccessRequestDialog open={accessDialogOpen} onClose={() => setAccessDialogOpen(false)} />
     </AppShell>
   );
 }

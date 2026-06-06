@@ -2,7 +2,7 @@
 
 PulseOps is a stage-ready incident command workspace for engineering teams that need a small, reliable place to triage service health, runbook progress and operational decisions.
 
-The workspace persists in browser storage for resilient handoffs, can be exported as JSON, imported again, and runs on a live stage deployment with a dedicated registration API. The health model is a real C++ module compiled to WebAssembly and used by the React interface at runtime.
+The workspace persists in browser storage for resilient handoffs, can be exported as JSON, imported again, and runs on a live stage deployment. The health model is a real C++ module compiled to WebAssembly and used by the React interface at runtime.
 
 ## Product workflow
 
@@ -12,7 +12,7 @@ PulseOps supports the core loop of incident response:
 2. Inspect the affected service and adjust current operational signals.
 3. Let the C++/WASM health model calculate service score, status and risk.
 4. Work through the relevant runbook and record decisions in the timeline.
-5. Persist the workspace state, export/import it as JSON for handoff or request workspace access.
+5. Persist the workspace state and export/import it as JSON for handoff.
 
 Every visible control changes application state: navigation, service selection, signal editing, runbook step completion, incident acknowledgement/resolution, decision notes, reset, save, import and export.
 
@@ -25,8 +25,6 @@ src/
   hooks/            WebAssembly loading
   lib/              Scoring, workspace reducer, persistence, time helpers
   wasm/             C++ health model and TypeScript declaration
-server/
-  registration-server.mjs  SMTP-backed access request API
 ```
 
 Key decisions:
@@ -36,7 +34,6 @@ Key decisions:
 - Export/import uses the same workspace shape, so a triage session can be handed off as JSON.
 - Service health is derived, not stored, by combining service signals with the WASM model.
 - UI components stay focused: the app shell, board, service inspector and runbook panel have separate ownership.
-- Access requests are processed server-side and delivered through SMTP configured by environment variables.
 
 ## What is worth reviewing
 
@@ -45,7 +42,6 @@ Key decisions:
 - `src/lib/workspace.test.ts`: incident, signal and runbook state tests.
 - `src/components/WorkspaceBoard.tsx`: real navigation between incident, service, runbook and audit surfaces.
 - `src/components/RunbookPanel.tsx`: acknowledge/resolve flow, runbook completion and decision notes.
-- `server/registration-server.mjs`: access request endpoint without secrets in source control.
 
 ## Local setup
 
@@ -86,24 +82,6 @@ https://pulseops.stage.dev
 
 See `docs/deployment.md` for the Git based stage deployment.
 
-## Registration API
-
-PulseOps exposes a server-side access request endpoint on stage:
-
-```http
-POST /api/registrations
-Content-Type: application/json
-
-{
-  "name": "Sascha Dobrochynskyy",
-  "email": "sascha@skyyware.com",
-  "company": "Skyyware",
-  "useCase": "Review PulseOps for an incident-command workflow."
-}
-```
-
-SMTP is configured exclusively through server environment variables such as `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `APP_MAIL_FROM` and `APP_REGISTRATION_NOTIFY_TO`.
-
 ## Stack
 
 - C++17 compiled via Emscripten
@@ -113,5 +91,4 @@ SMTP is configured exclusively through server environment variables such as `SMT
 - Vite 8
 - Vitest
 - LocalStorage with schema-versioned workspace state
-- Access requests through the `/api/registrations` service with SMTP notification
 - Static Linux / Apache stage hosting
